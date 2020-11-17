@@ -18,8 +18,17 @@ target_include_directories(${PROJECT_NAME} INTERFACE
 )
 
 # -------- install --------
-install(TARGETS ${PROJECT_NAME}
-        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+include(GNUInstallDirs)
+if("${CMAKE_VERSION}" VERSION_GREATER "3.14.0")
+    # TODO Find a way to copy over cx subfolder instead of manually specifying it
+    file(GLOB_RECURSE INCLUDE_FILES "include/*")
+    set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${INCLUDE_FILES}")
+    install(TARGETS ${PROJECT_NAME}
+            INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cx)
+else()
+    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
+            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+endif()
 
 # -------- gtest --------
 # Download and unpack googletest at configure time
