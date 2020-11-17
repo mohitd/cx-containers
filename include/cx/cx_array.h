@@ -50,7 +50,9 @@ struct array {
     // element access
     constexpr const_reference operator[](size_type i) const noexcept { return elems_[i]; }
     constexpr const_reference at(size_type i) const {
-        if (i >= N) throw std::out_of_range("cx::array::at: index out of bounds");
+        // we can't directly put the throw here since this is a core constant expression
+        // (see C++ spec §5.20 [expr.const])
+        if (i >= N) throw_out_of_range();
         return elems_[i];
     }
 
@@ -59,6 +61,10 @@ struct array {
     constexpr const_pointer data() const noexcept { return elems_; }
 
     const T elems_[N];
+private:
+    constexpr void throw_out_of_range() const {
+        throw std::out_of_range("cx::array::at: index out of bounds");
+    }
 };
 
 template<typename T, std::size_t N>
